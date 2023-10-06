@@ -5,6 +5,7 @@ from PyQt5.QtGui import QDoubleValidator
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from mpl_toolkits.mplot3d import Axes3D
 from numpy import array
+from object import *
 
 
 ###### Crie suas funções de translação, rotação, criação de referenciais, plotagem de setas e qualquer outra função que precisar
@@ -217,8 +218,17 @@ class MainWindow(QMainWindow):
         canvas_layout.addWidget(self.canvas1)
 
         # Criar um objeto FigureCanvas para exibir o gráfico 3D
+        # self.object = Object('gengar.stl')
+        self.mesh = mesh.Mesh.from_file('gengar.stl')
+        self.obj = self.setObj()
+
+        # Get the vectors that define the triangular faces that form the 3D object
+        self.vectors = self.mesh.vectors
+
         self.fig2 = plt.figure()
         self.ax2 = self.fig2.add_subplot(111, projection='3d')
+        self.ax2.plot(self.obj[0,:], self.obj[1,:], self.obj[2,:], 'r')
+        set_axes_equal(self.ax2)
         
         ##### Falta plotar o seu objeto 3D e os referenciais da câmera e do mundo
         
@@ -252,6 +262,26 @@ class MainWindow(QMainWindow):
     
     def reset_canvas(self):
         return
+    
+
+    """
+    Necessário orientação à objetos para melhor organização
+    da função abaixo
+    """
+
+    def setObj(self):
+        x = self.mesh.x.flatten()
+        y = self.mesh.y.flatten()
+        z = self.mesh.z.flatten()
+        
+        """
+        Create the 3D object from the x,y,z coordinates and add 
+        the additional array of ones to represent the object 
+        using homogeneous coordinates
+        """
+        obj = np.array([x.T,y.T,z.T,np.ones(x.size)])
+        
+        return obj
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)
