@@ -8,6 +8,7 @@ import numpy as np
 from object import *
 from cam import Camera
 from configure import Configure
+import math
 
 
 ###### Crie suas funções de translação, rotação, criação de referenciais, plotagem de setas e qualquer outra função que precisar
@@ -253,16 +254,16 @@ class MainWindow(QMainWindow):
 
     def update_world(self,line_edits):
         new_update = []
+        cmp = []
         for i in range(len(line_edits)):
             if line_edits[i].text() == '':
                 new_update.append(0)
+                cmp.append(0)
             else:
-                new_update.append(line_edits[i].text())
-                
-        for i in range(len(new_update)):
-            new_update[i] = float(new_update[i])
+                new_update.append(float(line_edits[i].text()))
+                cmp.append(math.fabs(float(line_edits[i].text())))
         
-        operation = new_update.index(max(new_update))
+        operation = cmp.index(max(cmp))
         
         if operation % 2 == 0:
             self.cam.M = (self.cam.move(new_update[0],new_update[2],new_update[4]))@self.cam.M
@@ -272,6 +273,8 @@ class MainWindow(QMainWindow):
             R3 = self.cam.z_rotation(new_update[5])
             
             self.cam.M = (R3@R2@R1)@self.cam.M
+        
+        print(self.cam.M)
         
         self.update_canvas()
 
