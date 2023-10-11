@@ -4,8 +4,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QGridLayout, QLabel, QWid
 from PyQt5.QtGui import QDoubleValidator
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from mpl_toolkits.mplot3d import Axes3D
-from numpy import array
+import numpy as np
 from object import *
+from cam import Camera
+from configure import Configure
 
 
 ###### Crie suas funções de translação, rotação, criação de referenciais, plotagem de setas e qualquer outra função que precisar
@@ -24,8 +26,8 @@ class MainWindow(QMainWindow):
     def set_variables(self):
         self.objeto_original = [] #modificar
         self.objeto = self.objeto_original
-        self.cam_original = [] #modificar
-        self.cam = [] #modificar
+        self.cam_original = Camera() #modificar
+        self.cam = self.cam_original #modificar
         self.px_base = 1280  #modificar
         self.px_altura = 720 #modificar
         self.dist_foc = 50 #modificar
@@ -221,6 +223,8 @@ class MainWindow(QMainWindow):
         # self.object = Object('gengar.stl')
         self.mesh = mesh.Mesh.from_file('gengar.stl')
         self.obj = self.setObj()
+        
+        
 
         # Get the vectors that define the triangular faces that form the 3D object
         self.vectors = self.mesh.vectors
@@ -231,10 +235,12 @@ class MainWindow(QMainWindow):
         set_axes_equal(self.ax2)
         
         ##### Falta plotar o seu objeto 3D e os referenciais da câmera e do mundo
-        
         self.canvas2 = FigureCanvas(self.fig2)
         canvas_layout.addWidget(self.canvas2)
-
+        
+        self.axis = self.ax2
+        Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
+        
         # Retornar o widget de canvas
         return canvas_widget
 
@@ -242,13 +248,51 @@ class MainWindow(QMainWindow):
     ##### Você deverá criar as suas funções aqui
     
     def update_params_intrinsc(self, line_edits):
-        return 
+        print(line_edits)
+        # return 
 
     def update_world(self,line_edits):
-        return
+        new_update = []
+        for i in range(len(line_edits)):
+            if line_edits[i].text() == '':
+                new_update.append(0)
+            else:
+                new_update.append(line_edits[i].text())
+                
+        for i in range(len(new_update)):
+            new_update[i] = float(new_update[i])
+        
+        operation = new_update.index(max(new_update))
+        
+        if operation % 2 == 0:
+            self.cam.M = (self.cam.move(new_update[0],new_update[2],new_update[4]))@self.cam.M
+        else:
+            R1 = self.cam.x_rotation(new_update[1])
+            R2 = self.cam.y_rotation(new_update[3])
+            R3 = self.cam.z_rotation(new_update[5])
+            
+            self.cam.M = (R3@R2@R1)@self.cam.M
+        
+        self.update_canvas()
 
     def update_cam(self,line_edits):
-        return 
+        new_update = []
+        for i in range(len(line_edits)):
+            if line_edits[i].text() == '':
+                new_update.append(0)
+            else:
+                new_update.append(line_edits[i].text())
+                
+        for i in range(len(new_update)):
+            new_update[i] = float(new_update[i])
+        
+
+        '''
+        .
+        .
+        .
+        
+        '''
     
     def projection_2d(self):
         return 
@@ -258,10 +302,10 @@ class MainWindow(QMainWindow):
     
 
     def update_canvas(self):
-        return 
+        Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
     
     def reset_canvas(self):
-        return
+        Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
     
 
     """
@@ -282,6 +326,10 @@ class MainWindow(QMainWindow):
         obj = np.array([x.T,y.T,z.T,np.ones(x.size)])
         
         return obj
+    
+    def setCam(self):
+        self.axis = Configure.draw_arrows(self.cam.M[3],self.cam.M[0:3],self.ax2,10.0)
+        
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)

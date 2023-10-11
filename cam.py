@@ -1,7 +1,8 @@
 #imports ...
 import numpy as np
+from transformer import Transform
 
-class Camera():
+class Camera(Transform):
     
     def __init__(self):
         
