@@ -217,7 +217,7 @@ class MainWindow(QMainWindow):
         self.mesh = mesh.Mesh.from_file('gengar.stl')
         self.obj = self.setObj()
         self.vectors = self.mesh.vectors
-        
+
         ##### Você deverá criar a função de projeção 
         object_2d = self.projection_2d()
 
@@ -235,6 +235,24 @@ class MainWindow(QMainWindow):
         set_axes_equal(self.ax2)
         
         Configure.draw_arrows(np.array([0,0,0,1]), np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0]]), self.ax2, 10)
+
+        ### Seta os limites do plot 3D
+        x_limits = self.ax2.get_xlim3d()
+        y_limits = self.ax2.get_ylim3d()
+        z_limits = self.ax2.get_zlim3d()
+
+        x_range = abs(x_limits[1] - x_limits[0])
+        x_middle = np.mean(x_limits)
+        y_range = abs(y_limits[1] - y_limits[0])
+        y_middle = np.mean(y_limits)
+        z_range = abs(z_limits[1] - z_limits[0])
+        z_middle = np.mean(z_limits)
+
+        plot_radius = 0.7*max([x_range, y_range, z_range])
+
+        self.ax2.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+        self.ax2.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+        self.ax2.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
         
         plt.ion()
         
@@ -328,11 +346,6 @@ class MainWindow(QMainWindow):
     def reset_canvas(self):
         Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
     
-
-    """
-    Necessário orientação à objetos para melhor organização
-    da função abaixo
-    """
 
     def setObj(self):
         x = self.mesh.x.flatten()
