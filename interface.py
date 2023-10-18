@@ -270,8 +270,17 @@ class MainWindow(QMainWindow):
     ##### Você deverá criar as suas funções aqui
     
     def update_params_intrinsc(self, line_edits):
-        print(line_edits)
-        # return 
+        new_update = []
+        for i in range(len(line_edits)):
+            if line_edits[i].text() == '':
+                new_update.append(0)
+            else:
+                new_update.append(float(line_edits[i].text()))
+
+        self.cam.update_Intrinsic(new_update)
+
+        self.update_canvas()
+        
 
     def update_world(self,line_edits):
         new_update = []
@@ -291,8 +300,6 @@ class MainWindow(QMainWindow):
         R3 = self.cam.z_rotation(new_update[5])
         
         self.cam.M = (R3@R2@R1)@self.cam.M
-        
-        print(self.cam.M)
         
         self.update_canvas()
 
@@ -344,7 +351,7 @@ class MainWindow(QMainWindow):
         self.x_cam, self.y_cam, self.z_cam = Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
     
     def reset_canvas(self):
-        Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
+        self.cam = self.cam_original
     
 
     def setObj(self):

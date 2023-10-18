@@ -46,3 +46,17 @@ class Camera(Transform):
         reduct = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0]])
         
         return reduct
+    
+    def update_Intrinsic(self,update):
+        params_list = [self.widthPixels,self.heightPixels,self.ccdx,self.ccdy,self.focalDist,self.sTheta]
+        
+        for param in range(len(update)):
+            if update[param] != 0:
+                params_list[param] = update[param]
+        
+        self.define_widthPixels(params_list[0])
+        self.define_heightPixels(params_list[1])
+        self.define_ccdx(params_list[2])
+        self.define_ccdy(params_list[3])
+        self.define_focalDist(params_list[4])
+        self.define_sTheta(params_list[5])
