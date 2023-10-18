@@ -209,37 +209,40 @@ class MainWindow(QMainWindow):
         ##### Falta acertar os limites do eixo X
         
         ##### Falta acertar os limites do eixo Y
-        
-        ##### Você deverá criar a função de projeção 
-        object_2d = self.projection_2d()
-
-        ##### Falta plotar o object_2d que retornou da projeção
           
-        self.ax1.grid('True')
-        self.ax1.set_aspect('equal')  
-        canvas_layout.addWidget(self.canvas1)
 
         # Criar um objeto FigureCanvas para exibir o gráfico 3D
         # self.object = Object('gengar.stl')
         self.mesh = mesh.Mesh.from_file('gengar.stl')
         self.obj = self.setObj()
-        
-        
-
-        # Get the vectors that define the triangular faces that form the 3D object
         self.vectors = self.mesh.vectors
+        
+        ##### Você deverá criar a função de projeção 
+        object_2d = self.projection_2d()
 
+        ##### Falta plotar o object_2d que retornou da projeção
+        self.obj_view = self.ax1.plot(object_2d[0, :], object_2d[1, :], color = (0.2, 0.2, 0.2, 0.9), linewidth = 0.3) 
+        # Get the vectors that define the triangular faces that form the 3D object
+
+        self.ax1.grid('True')
+        self.ax1.set_aspect('equal')  
+        canvas_layout.addWidget(self.canvas1)
+        
         self.fig2 = plt.figure()
         self.ax2 = self.fig2.add_subplot(111, projection='3d')
         self.ax2.plot(self.obj[0,:], self.obj[1,:], self.obj[2,:], 'r')
         set_axes_equal(self.ax2)
+        
+        Configure.draw_arrows(np.array([0,0,0,1]), np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0]]), self.ax2, 10)
+        
+        plt.ion()
         
         ##### Falta plotar o seu objeto 3D e os referenciais da câmera e do mundo
         self.canvas2 = FigureCanvas(self.fig2)
         canvas_layout.addWidget(self.canvas2)
         
         self.axis = self.ax2
-        Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
+        self.x_cam, self.y_cam, self.z_cam = Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
         
         # Retornar o widget de canvas
         return canvas_widget
@@ -262,16 +265,13 @@ class MainWindow(QMainWindow):
         for i in range(len(new_update)):
             new_update[i] = float(new_update[i])
         
-        operation = new_update.index(max(new_update))
+        self.cam.M = (self.cam.move(new_update[0],new_update[2],new_update[4]))@self.cam.M
         
-        if operation % 2 == 0:
-            self.cam.M = (self.cam.move(new_update[0],new_update[2],new_update[4]))@self.cam.M
-        else:
-            R1 = self.cam.x_rotation(new_update[1])
-            R2 = self.cam.y_rotation(new_update[3])
-            R3 = self.cam.z_rotation(new_update[5])
-            
-            self.cam.M = (R3@R2@R1)@self.cam.M
+        R1 = self.cam.x_rotation(new_update[1])
+        R2 = self.cam.y_rotation(new_update[3])
+        R3 = self.cam.z_rotation(new_update[5])
+        
+        self.cam.M = (R3@R2@R1)@self.cam.M
         
         self.update_canvas()
 
@@ -295,14 +295,32 @@ class MainWindow(QMainWindow):
         '''
     
     def projection_2d(self):
-        return 
+        project_matrix = self.cam.get_Intrinsic()@self.cam.get_ReductMatrix()@self.cam.M@self.obj
+        
+        return project_matrix
+        
+        
     
     def generate_intrinsic_params_matrix(self):
         return 
     
 
     def update_canvas(self):
-        Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
+        
+        #2d view update
+        
+        for item in self.obj_view:
+            item.remove()
+            
+        object_2d = self.projection_2d()
+        self.obj_view = self.ax1.plot(object_2d[0, :], object_2d[1, :], color = (0.2, 0.2, 0.2, 0.9), linewidth = 0.3)
+        
+        #Cam plot update
+        self.x_cam.remove()
+        self.y_cam.remove()
+        self.z_cam.remove()
+        
+        self.x_cam, self.y_cam, self.z_cam = Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
     
     def reset_canvas(self):
         Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
@@ -326,9 +344,6 @@ class MainWindow(QMainWindow):
         obj = np.array([x.T,y.T,z.T,np.ones(x.size)])
         
         return obj
-    
-    def setCam(self):
-        self.axis = Configure.draw_arrows(self.cam.M[3],self.cam.M[0:3],self.ax2,10.0)
         
     
 if __name__ == '__main__':

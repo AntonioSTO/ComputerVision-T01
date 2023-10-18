@@ -36,8 +36,13 @@ class Camera(Transform):
         self.widthPixels = value
         
     def get_Intrinsic(self):
-        intrinsic = np.array([[self.focalDist*(self.widthPixels/self.ccdx), self.focalDist*(self.sTheta), self.define_widthPixels/2],
-                              [0                          , self.focalDist*(self.widthPixels/self.ccdx), self.define_heightPixels/2],
-                              [0                          , 0                                              ,                      1]])
+        intrinsic = np.array([[self.focalDist*(self.widthPixels/self.ccdx), self.focalDist*(self.sTheta), self.widthPixels/2],
+                              [0                          , self.focalDist*(self.widthPixels/self.ccdx), self.heightPixels/2],
+                              [0                          , 0                                              ,               1]])
         
         return intrinsic
+    
+    def get_ReductMatrix(self):
+        reduct = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0]])
+        
+        return reduct
