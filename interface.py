@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         self.cam = Camera() #modificar
         self.px_base = 1280  #modificar
         self.px_altura = 720 #modificar
-        self.dist_foc = 50 #modificar
+        self.dist_foc = 10 #modificar
         self.stheta = 0 #modificar
         self.ox = self.px_base/2 #modificar
         self.oy = self.px_altura/2 #modificar
@@ -334,11 +334,6 @@ class MainWindow(QMainWindow):
         
         
         return project_matrix
-        
-        
-    
-    def generate_intrinsic_params_matrix(self):
-        return 
     
 
     def update_canvas(self):
@@ -357,6 +352,10 @@ class MainWindow(QMainWindow):
         self.z_cam.remove()
         
         self.x_cam, self.y_cam, self.z_cam = Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
+
+        self.ax1.set_xlim([0, self.cam.widthPixels])
+        self.ax1.xaxis.tick_top()
+        self.ax1.set_ylim([self.cam.heightPixels, 0])
     
     def reset_canvas(self):
         self.cam.M = self.cam_original.M
