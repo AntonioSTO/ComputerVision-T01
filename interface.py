@@ -309,18 +309,23 @@ class MainWindow(QMainWindow):
             if line_edits[i].text() == '':
                 new_update.append(0)
             else:
-                new_update.append(line_edits[i].text())
-                
-        for i in range(len(new_update)):
-            new_update[i] = float(new_update[i])
-        
+                new_update.append(float(line_edits[i].text()))
 
-        '''
-        .
-        .
-        .
+        cam_orig = self.cam_original.M
         
-        '''
+        T = self.cam.move(new_update[0],new_update[2],new_update[4])
+        self.cam.M = self.cam.M@cam_orig@T
+    
+        Rx = self.cam.x_rotation(new_update[1])
+        self.cam.M = self.cam.M@cam_orig@Rx
+        
+        Ry = self.cam.y_rotation(new_update[3])
+        self.cam.M = self.cam.M@cam_orig@Ry
+        
+        Rz = self.cam.z_rotation(new_update[5])
+        self.cam.M = self.cam.M@cam_orig@Rz
+        
+        self.update_canvas()
     
     def projection_2d(self):
         project_matrix = self.cam.get_Intrinsic()@self.cam.get_ReductMatrix()@np.linalg.inv(self.cam.M)@self.obj

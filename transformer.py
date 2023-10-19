@@ -15,11 +15,6 @@ class Transform:
         T[2,-1] = dz
         return T
 
-    def z_rotation(self,angle):
-        angle = pi*(angle/180)
-        rotation_matrix=np.array([[cos(angle),-sin(angle),0,0],[sin(angle),cos(angle),0,0],[0,0,1,0],[0,0,0,1]])
-        return rotation_matrix
-
     def x_rotation(self,angle):
         angle = pi*(angle/180)
         rotation_matrix=np.array([[1,0,0,0],[0, cos(angle),-sin(angle),0],[0, sin(angle), cos(angle),0],[0,0,0,1]])
@@ -28,6 +23,11 @@ class Transform:
     def y_rotation(self,angle):
         angle = pi*(angle/180)
         rotation_matrix=np.array([[cos(angle),0, sin(angle),0],[0,1,0,0],[-sin(angle), 0, cos(angle),0],[0,0,0,1]])
+        return rotation_matrix
+    
+    def z_rotation(self,angle):
+        angle = pi*(angle/180)
+        rotation_matrix=np.array([[cos(angle),-sin(angle),0,0],[sin(angle),cos(angle),0,0],[0,0,1,0],[0,0,0,1]])
         return rotation_matrix
     
     def projectionModel(intrinsic,extrinsic,ref):

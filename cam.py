@@ -7,7 +7,7 @@ class Camera(Transform):
     def __init__(self):
         
         #Intrinsic Params
-        self.focalDist = 50
+        self.focalDist = 10
         self.ccdx = 36
         self.ccdy = 24
         self.widthPixels = 1280
