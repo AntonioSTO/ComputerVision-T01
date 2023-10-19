@@ -358,7 +358,7 @@ class MainWindow(QMainWindow):
         self.ax1.set_ylim([self.cam.heightPixels, 0])
     
     def reset_canvas(self):
-        self.cam.M = self.cam_original.M
+        self.cam = Camera()
         self.update_canvas()
     
 
