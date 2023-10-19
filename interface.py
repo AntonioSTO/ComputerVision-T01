@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
         self.objeto_original = [] #modificar
         self.objeto = self.objeto_original
         self.cam_original = Camera() #modificar
-        self.cam = self.cam_original #modificar
+        self.cam = Camera() #modificar
         self.px_base = 1280  #modificar
         self.px_altura = 720 #modificar
         self.dist_foc = 50 #modificar
@@ -207,15 +207,19 @@ class MainWindow(QMainWindow):
         self.ax1.set_title("Imagem")
         self.canvas1 = FigureCanvas(self.fig1)
 
+        
         ##### Falta acertar os limites do eixo X
+        self.ax1.set_xlim([0, self.cam.widthPixels])
+        self.ax1.xaxis.tick_top()
         
         ##### Falta acertar os limites do eixo Y
+        self.ax1.set_ylim([self.cam.heightPixels, 0])
           
-
         # Criar um objeto FigureCanvas para exibir o gráfico 3D
         # self.object = Object('gengar.stl')
         self.mesh = mesh.Mesh.from_file('gengar.stl')
         self.obj = self.setObj()
+        self.obj = (1/2)*self.obj
         self.vectors = self.mesh.vectors
 
         ##### Você deverá criar a função de projeção 
@@ -228,7 +232,6 @@ class MainWindow(QMainWindow):
         self.ax1.grid('True')
         self.ax1.set_aspect('equal')  
         canvas_layout.addWidget(self.canvas1)
-        
         self.fig2 = plt.figure()
         self.ax2 = self.fig2.add_subplot(111, projection='3d')
         self.ax2.plot(self.obj[0,:], self.obj[1,:], self.obj[2,:], 'r')
@@ -284,14 +287,11 @@ class MainWindow(QMainWindow):
 
     def update_world(self,line_edits):
         new_update = []
-        cmp = []
         for i in range(len(line_edits)):
             if line_edits[i].text() == '':
                 new_update.append(0)
-                cmp.append(0)
             else:
                 new_update.append(float(line_edits[i].text()))
-                cmp.append(math.fabs(float(line_edits[i].text())))
         
         self.cam.M = (self.cam.move(new_update[0],new_update[2],new_update[4]))@self.cam.M
         
@@ -323,7 +323,10 @@ class MainWindow(QMainWindow):
         '''
     
     def projection_2d(self):
-        project_matrix = self.cam.get_Intrinsic()@self.cam.get_ReductMatrix()@self.cam.M@self.obj
+        project_matrix = self.cam.get_Intrinsic()@self.cam.get_ReductMatrix()@np.linalg.inv(self.cam.M)@self.obj
+        
+        project_matrix *= 1/project_matrix[2]
+        
         
         return project_matrix
         
@@ -351,7 +354,8 @@ class MainWindow(QMainWindow):
         self.x_cam, self.y_cam, self.z_cam = Configure.draw_arrows(self.cam.M[:,3], self.cam.M[:,0:3], self.ax2, 5.0)
     
     def reset_canvas(self):
-        self.cam = self.cam_original
+        self.cam.M = self.cam_original.M
+        self.update_canvas()
     
 
     def setObj(self):

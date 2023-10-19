@@ -8,8 +8,8 @@ class Camera(Transform):
         
         #Intrinsic Params
         self.focalDist = 50
-        self.ccdx = 1
-        self.ccdy = 1
+        self.ccdx = 36
+        self.ccdy = 24
         self.widthPixels = 1280
         self.heightPixels = 720
         self.sTheta = 0
@@ -37,7 +37,7 @@ class Camera(Transform):
         
     def get_Intrinsic(self):
         intrinsic = np.array([[self.focalDist*(self.widthPixels/self.ccdx), self.focalDist*(self.sTheta), self.widthPixels/2],
-                              [0                          , self.focalDist*(self.widthPixels/self.ccdx), self.heightPixels/2],
+                              [0                          , self.focalDist*(self.heightPixels/self.ccdy), self.heightPixels/2],
                               [0                          , 0                                              ,               1]])
         
         return intrinsic
@@ -53,6 +53,7 @@ class Camera(Transform):
         for param in range(len(update)):
             if update[param] != 0:
                 params_list[param] = update[param]
+        
         
         self.define_widthPixels(params_list[0])
         self.define_heightPixels(params_list[1])
