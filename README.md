@@ -10,6 +10,9 @@ A Rigid Body motion and Perspective Projection algorithm with a visual interface
 ## Why was this code made?
 This is the result of a project demanded by our computer vision class. 
 
+## How can I run this code?
+Just run "interface.py", it's really simple!
+
 ## Authors
     - Antônio Sant'Ana de Oliveira
     - Arthur Bandeira Salvador
