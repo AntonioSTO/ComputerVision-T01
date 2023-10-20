@@ -273,14 +273,8 @@ class MainWindow(QMainWindow):
     ##### Você deverá criar as suas funções aqui
     
     def update_params_intrinsc(self, line_edits):
-        new_update = []
-        for i in range(len(line_edits)):
-            if line_edits[i].text() == '':
-                new_update.append(0)
-            else:
-                new_update.append(float(line_edits[i].text()))
 
-        self.cam.update_Intrinsic(new_update)
+        self.cam.update_Intrinsic(line_edits)
 
         self.update_canvas()
         

@@ -51,8 +51,8 @@ class Camera(Transform):
         params_list = [self.widthPixels,self.heightPixels,self.ccdx,self.ccdy,self.focalDist,self.sTheta]
         
         for param in range(len(update)):
-            if update[param] != 0:
-                params_list[param] = update[param]
+            if update[param].text() != '':
+                params_list[param] = float(update[param].text())
         
         
         self.define_widthPixels(params_list[0])
